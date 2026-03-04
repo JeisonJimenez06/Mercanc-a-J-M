@@ -51,19 +51,43 @@ async function cargar() {
     } catch(e) { console.error(e); }
 }
 
+// FUNCIÓN ACTUALIZADA: Genera descarga directa para evitar errores en el móvil
 function imprimirFacturaNativa(f) {
     const saldo = (f.Precio || 0) - (f.Abono || 0);
     const fecha = new Date().toLocaleDateString();
-    const ventana = window.open('', '_blank');
-    ventana.document.write(`
-        <html><body><div style="font-family:monospace; padding:20px; border:1px dashed black; width:300px; margin:auto;">
-            <h2 style="text-align:center;">J&M MERCANCÍA</h2>
-            <hr><p>FECHA: ${fecha}</p><p>CLIENTE: ${f.Cliente}</p><p>PRODUCTO: ${f.Producto}</p>
-            <hr><p>TOTAL: $${(f.Precio || 0).toLocaleString('es-CO')}</p><p>ABONO: $${(f.Abono || 0).toLocaleString('es-CO')}</p>
-            <hr><p style="font-size:20px;"><b>SALDO: $${saldo.toLocaleString('es-CO')}</b></p>
-        </div><script>window.onload = function() { window.print(); window.close(); };<\/script></body></html>
-    `);
-    ventana.document.close();
+    
+    // Crear el diseño del ticket
+    const ticketHtml = `
+        <div style="font-family:monospace; padding:20px; width:300px; color:black; background:white;">
+            <h2 style="text-align:center; margin:0;">J&M MERCANCÍA</h2>
+            <p style="text-align:center; font-size:12px;">Comprobante de Pago</p>
+            <hr style="border:none; border-top:1px dashed black;">
+            <p><strong>FECHA:</strong> ${fecha}</p>
+            <p><strong>CLIENTE:</strong> ${f.Cliente}</p>
+            <p><strong>PRODUCTO:</strong> ${f.Producto}</p>
+            <hr style="border:none; border-top:1px dashed black;">
+            <p>TOTAL: $${(f.Precio || 0).toLocaleString('es-CO')}</p>
+            <p>ABONO: $${(f.Abono || 0).toLocaleString('es-CO')}</p>
+            <hr style="border:none; border-top:1px dashed black;">
+            <p style="font-size:18px;"><b>SALDO: $${saldo.toLocaleString('es-CO')}</b></p>
+            <p style="text-align:center; font-size:10px; margin-top:20px;">¡Gracias por su compra!</p>
+        </div>
+    `;
+
+    const elemento = document.createElement('div');
+    elemento.innerHTML = ticketHtml;
+
+    // Configuración de descarga directa
+    const opciones = {
+        margin: 0.2,
+        filename: `Factura_${f.Cliente}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, logging: false, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    // Usar la librería html2pdf para descargar el archivo sin abrir ventanas nuevas
+    html2pdf().set(opciones).from(elemento).save();
 }
 
 document.getElementById('formM').addEventListener('submit', async (e) => {
@@ -78,13 +102,15 @@ document.getElementById('formM').addEventListener('submit', async (e) => {
         "Abono": parseFloat(document.getElementById('abo').value),
         "MetodoPago": document.getElementById('metodo').value
     };
-    await fetch(id ? `https://api.airtable.com/v0/${BASE}/${TABLA}/${id}` : `https://api.airtable.com/v0/${BASE}/${TABLA}`, {
-        method: id ? 'PATCH' : 'POST',
-        headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields: campos })
-    });
-    if (!id) imprimirFacturaNativa(campos);
-    resetForm(); cargar();
+    try {
+        await fetch(id ? `https://api.airtable.com/v0/${BASE}/${TABLA}/${id}` : `https://api.airtable.com/v0/${BASE}/${TABLA}`, {
+            method: id ? 'PATCH' : 'POST',
+            headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields: campos })
+        });
+        if (!id) imprimirFacturaNativa(campos);
+        resetForm(); cargar();
+    } catch(err) { alert("Error al guardar"); }
 });
 
 function enviarWhatsApp(r) {
