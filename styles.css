@@ -1,0 +1,10 @@
+:root { --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #198754 100%); }
+body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+.pago-ok { border-left: 8px solid #198754 !important; background-color: #eef9f1 !important; }
+.pago-deuda { border-left: 8px solid #dc3545 !important; background-color: #fceaea !important; }
+.logo-icon { width: 45px; height: 45px; background: var(--primary-gradient); border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.hidden { display: none !important; }
+.card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.input-calculado { background-color: #e9ecef !important; font-weight: bold; color: #0d6efd !important; }
+.main-container { flex: 1; }
+footer { background: white; border-top: 1px solid #dee2e6; padding: 20px 0; text-align: center; color: #6c757d; }

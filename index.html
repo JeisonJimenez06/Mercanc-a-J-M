@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J&M - Sistema Administrativo</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2683/2683262.png">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <div id="loginContainer" class="d-flex align-items-center justify-content-center min-vh-100">
+            <div class="card p-5 text-center shadow-lg" style="max-width: 400px; width: 90%;">
+                <div class="logo-icon mx-auto mb-3">J&M</div>
+                <h4 class="fw-bold mb-4">Acceso J&M</h4>
+                <input type="password" id="passInput" class="form-control mb-3 text-center" placeholder="Contraseña">
+                <button class="btn btn-primary w-100 fw-bold" onclick="validarAcceso()">ENTRAR</button>
+            </div>
+        </div>
+
+        <div id="mainContent" class="container py-4 hidden">
+            <header class="d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="logo-icon me-3">J&M</div>
+                    <h3 class="mb-0 fw-bold">Mercancía J&M</h3>
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm me-2" onclick="descargarReporte()"><i class="bi bi-file-earmark-excel"></i> Reporte</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="location.reload()">Salir</button>
+                </div>
+            </header>
+
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <form id="formM" class="row g-3">
+                        <input type="hidden" id="editId">
+                        <div class="col-md-4"><label class="fw-bold small">Cliente</label><input type="text" id="cli" class="form-control" required></div>
+                        <div class="col-md-4"><label class="fw-bold small">Teléfono</label><input type="text" id="tel" class="form-control"></div>
+                        <div class="col-md-4"><label class="fw-bold small">Dirección</label><input type="text" id="dir" class="form-control"></div>
+                        <div class="col-md-4"><label class="fw-bold small">Producto</label><input type="text" id="pro" class="form-control" required></div>
+                        <div class="col-md-2"><label class="fw-bold small">Precio</label><input type="number" id="pre" class="form-control" required oninput="calcResta()"></div>
+                        <div class="col-md-2"><label class="fw-bold small">Abono</label><input type="number" id="abo" class="form-control" value="0" oninput="calcResta()"></div>
+                        <div class="col-md-2">
+                            <label class="fw-bold small">Método</label>
+                            <select id="metodo" class="form-select">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Nequi">Nequi</option>
+                                <option value="Daviplata">Daviplata</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2"><label class="fw-bold small text-primary">Saldo</label><input type="text" id="valRes" class="form-control input-calculado" readonly value="$0"></div>
+                        <div class="col-12 text-end">
+                            <button type="button" id="btnCan" class="btn btn-secondary d-none me-2" onclick="resetForm()">Cancelar</button>
+                            <button type="submit" id="btnG" class="btn btn-primary px-5 fw-bold">Guardar Datos</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por cliente..." onkeyup="filtrar()">
+
+            <div class="table-responsive bg-white rounded shadow-sm">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr><th>Cliente</th><th>Producto</th><th>Abono</th><th>Saldo</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody id="lista"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer id="mainFooter" class="hidden">
+        <p class="mb-1">© 2024 | <strong>J&M Mercancía</strong></p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Registrar el Service Worker para permitir la instalación en el móvil
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
